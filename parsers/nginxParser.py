@@ -7,11 +7,10 @@ import config
 def parse(line):
     requestpattern = (r''
                       '(\d+.\d+.\d+.\d+)\s-\s-\s'  # IP address
-                      '"GET\s(.+)\s\w+/.+"\s\d+\s'  # requested file
-                      '"(.+)"'  # user agent
                       )
     match = re.findall(requestpattern, line)
     if match:
+        print(match)
         match = format(match)
         return match
     else:
@@ -19,24 +18,26 @@ def parse(line):
 
 
 def format(match):
-    target = config.load()
+    host = config.load()
     ip = match[0]
     geoinfo = parsers.geoIP.push(ip)
 
-    json.dump(
+    match = json.dumps(
         {
             "attackerLatitude": geoinfo['latitude'],
             "attackerLongitude": geoinfo['longitude'],
-            "targetLongitude": target['targetLongitude'],
-            "targetLatitude": target['targetLatitude'],
-            "targetCountry": target['targetCountry'],
+            "targetLongitude": host['targetLongitude'],
+            "targetLatitude": host['targetLatitude'],
+            "targetCountry": host['targetCountry'],
             "attackerCountry": geoinfo['country_name'],
             "signatureName": "LDAP Injection attempt",
             "attackerIP": ip,
-            "targetIP": target['targetIP'],
+            "targetIP": host['targetIP'],
             "hostHeader": "www.example.com"
         }
     )
+
+    return match
 
 
 if __name__ == '__main__':

@@ -20,6 +20,7 @@ def tailHandler(filename, type):
         sleep(0.1)
         line = p.stdout.readline()
         line = str(line)
+        print(line)
         pushToParser(line, type)
         if not line:
             break
@@ -38,4 +39,4 @@ def pushToServer(event):
     # server.socketClient.push(event)
 
 
-followLog('/var/log/messages', 'nginx')
+followLog('/var/log/nginx/access.log', 'nginx')
