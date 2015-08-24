@@ -18,9 +18,7 @@ def tailHandler(filename, type):
     p = subprocess.Popen(["tail", "-f", filename], stdout=subprocess.PIPE)
     while 1:
         sleep(0.1)
-        line = p.stdout.readline()
-        line = str(line)
-        print(line)
+        line = str(p.stdout.readline())
         pushToParser(line, type)
         if not line:
             break
