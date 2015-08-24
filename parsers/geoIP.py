@@ -1,5 +1,6 @@
 import GeoIP
 
+
 def push(ip):
     geoDB = GeoIP.open("GeoIPCity.dat", GeoIP.GEOIP_STANDARD)
 

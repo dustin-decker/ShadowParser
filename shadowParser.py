@@ -3,13 +3,11 @@ import subprocess
 import parsers.nginxParser
 from time import sleep
 import server.socketClient
-#import server.socketServer
 
 
-# tailq = queue.Queue(maxsize=10) # buffer at most 100 lines
+# import server.socketServer
 
 # server.socketServer.start()
-
 
 
 def followLog(filename, type):
@@ -22,14 +20,12 @@ def tailHandler(filename, type):
         sleep(0.1)
         line = p.stdout.readline()
         line = str(line)
-        # tailq.put(line)
         pushToParser(line, type)
         if not line:
             break
 
 
 def pushToParser(line, type):
-    # line=tailq.get_nowait()
     if type == 'nginx':
         event = parsers.nginxParser.parse(line)
         pushToServer(event)
