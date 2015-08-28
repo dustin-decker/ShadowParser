@@ -4,12 +4,12 @@ import parsers.geoIP
 import config
 
 
-def parse(ip, line):
+def parse(ip, line, signature):
     match = re.findall(ip, line)
     if match:
         ip = match[0]
         geoinfo = getGeoInfo(ip)
-        event = format(ip, geoinfo)
+        event = format(ip, geoinfo, signature)
         return event
     else:
         pass
@@ -20,7 +20,7 @@ def getGeoInfo(ip):
     return geoinfo
 
 
-def format(ip, geoinfo):
+def format(ip, geoinfo, signature):
     host = config.load()
     if geoinfo:
         event = json.dumps(
@@ -31,7 +31,7 @@ def format(ip, geoinfo):
                 "targetLatitude": host['targetLatitude'],
                 "targetCountry": host['targetCountry'],
                 "attackerCountry": geoinfo['country_name'],
-                "signatureName": "not yet implemented",
+                "signatureName": signature,
                 "attackerIP": ip,
                 "targetIP": host['targetIP'],
                 "hostHeader": "not yet implemented"

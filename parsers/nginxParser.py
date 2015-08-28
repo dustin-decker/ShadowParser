@@ -5,7 +5,8 @@ def parse(line):
     ip = (r''
           '(\d+.\d+.\d+.\d+)\s-\s-\s'
           )
-    event = parsers.generic.parse(ip, line)
+    signature = 'nginx'
+    event = parsers.generic.parse(ip, line, signature)
     return event
 
 

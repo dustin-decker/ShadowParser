@@ -2,21 +2,17 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-clients = []
 
-
-class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
+class SocketServer(tornado.websocket.WebSocketHandler):
     def open(self, *args):
-        print(clients)
-        clients.append(self)
+        print("WebSocket opened")
 
     def on_message(self, message):
         print(message)
-        for client in clients:
-            client.write_message(message)
+        self.write_message(message)
 
     def on_close(self):
-        clients.remove(self)
+        print("WebSocket closed")
 
     # allow for cross-origin request
     def check_origin(self, origin):
@@ -24,7 +20,7 @@ class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
 
 
 if __name__ == '__main__':
-    app = tornado.web.Application([(r'/', WebSocketChatHandler)])
+    app = tornado.web.Application([(r'/', SocketServer)])
 
     app.listen(7777)
     tornado.ioloop.IOLoop.instance().start()
