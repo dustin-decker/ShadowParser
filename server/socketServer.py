@@ -18,6 +18,10 @@ class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         clients.remove(self)
 
+    # allow for cross-origin request
+    def check_origin(self, origin):
+        return True
+
 
 if __name__ == '__main__':
     app = tornado.web.Application([(r'/', WebSocketChatHandler)])
