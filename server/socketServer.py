@@ -7,6 +7,7 @@ clients = []
 
 class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
     def open(self, *args):
+        print(clients)
         clients.append(self)
 
     def on_message(self, message):
