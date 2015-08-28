@@ -34,10 +34,14 @@ def format(ip, geoinfo):
                 "signatureName": "not yet implemented",
                 "attackerIP": ip,
                 "targetIP": host['targetIP'],
-                "hostHeader": "www.example.com"
+                "hostHeader": "not yet implemented"
             }
         )
 
         return event
     else:
         pass
+
+
+if __name__ == '__main__':
+    pass

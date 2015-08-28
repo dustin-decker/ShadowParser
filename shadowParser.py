@@ -19,22 +19,22 @@ def tailHandler(filename, type):
     while 1:
         sleep(0.1)
         line = str(p.stdout.readline())
-        pushToParser(line, type)
+        parseAndServe(line, type)
         if not line:
             break
 
 
-def pushToParser(line, type):
+def parseAndServe(line, type):
     if type == 'nginx':
         event = parsers.nginxParser.parse(line)
-        pushToServer(event)
+    else:
+        pass
+
+    if event:
+        server.socketClient.push(event)
     else:
         pass
 
 
-def pushToServer(event):
-    print(event)
-    # server.socketClient.push(event)
-
-
-followLog('/var/log/nginx/access.log', 'nginx')
+if __name__ == '__main__':
+    followLog('/var/log/nginx/access.log', 'nginx')
