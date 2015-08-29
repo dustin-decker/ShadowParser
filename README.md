@@ -11,4 +11,4 @@ Some dependencies:
 
 sudo apt-get install libgeoip-dev
 
-sudo pip3 install GeoIP tornado
+sudo pip3 install GeoIP tornado websocket-client
