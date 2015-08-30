@@ -4,8 +4,8 @@ import parsers.geoIP
 import config
 
 
-def parse(ip, line, signature):
-    match = re.findall(ip, line)
+def parse(ipregex, line, signature):
+    match = re.findall(ipregex, line)
     if match:
         ip = match[0]
         geoinfo = getGeoInfo(ip)
