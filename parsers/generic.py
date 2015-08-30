@@ -8,19 +8,19 @@ def parse(ipregex, line, signature):
     match = re.findall(ipregex, line)
     if match:
         ip = match[0]
-        geoinfo = getGeoInfo(ip)
-        event = format(ip, geoinfo, signature)
+        geoinfo = getgeoinfo(ip)
+        event = formatpayload(ip, geoinfo, signature)
         return event
     else:
         pass
 
 
-def getGeoInfo(ip):
+def getgeoinfo(ip):
     geoinfo = parsers.geoIP.push(ip)
     return geoinfo
 
 
-def format(ip, geoinfo, signature):
+def formatpayload(ip, geoinfo, signature):
     host = config.load()
     if geoinfo:
         event = json.dumps(

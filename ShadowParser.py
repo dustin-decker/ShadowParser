@@ -2,15 +2,15 @@ import threading
 import subprocess
 import parsers.nginxParser
 from time import sleep
-import server.socketClient
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
 
 class ShadowParser(tornado.websocket.WebSocketHandler):
+
     def open(self, *args):
-        self.followLog('/var/log/nginx/access.log', 'nginx')
+        self.followlog('/var/log/nginx/access.log', 'nginx')
         print("WebSocket opened")
 
     def on_message(self, message):
@@ -24,20 +24,23 @@ class ShadowParser(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
         return True
 
-    def followLog(self, filename, type):
-        threading.Thread(target=self.tailHandler, args=(filename, type)).start()
+    def followlog(self, filename, logtype):
+        threading.Thread(target=self.tailhandler,
+                         name=filename,
+                         args=(filename, logtype)).start()
 
-    def tailHandler(self, filename, type):
+    def tailhandler(self, filename, logtype):
         p = subprocess.Popen(["tail", "-f", filename], stdout=subprocess.PIPE)
         while 1:
             sleep(0.1)
             line = str(p.stdout.readline())
-            self.parseAndServe(line, type)
+            self.parseandserve(line, logtype)
             if not line:
                 break
 
-    def parseAndServe(self, line, type):
-        if type == 'nginx':
+    def parseandserve(self, line, logtype):
+        event = 0
+        if logtype == 'nginx':
             event = parsers.nginxParser.parse(line)
         else:
             pass
