@@ -2,11 +2,11 @@ import parsers.generic
 
 
 def parse(line):
-    ip = (r''
+    ipregex = (r''
           '(\d+.\d+.\d+.\d+)\s-\s-\s'
           )
     signature = 'nginx'
-    event = parsers.generic.parse(ip, line, signature)
+    event = parsers.generic.parse(ipregex, line, signature)
     return event
 
 
