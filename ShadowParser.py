@@ -8,7 +8,7 @@ import tornado.web
 import tornado.websocket
 
 
-class shadowParser(tornado.websocket.WebSocketHandler):
+class ShadowParser(tornado.websocket.WebSocketHandler):
     def open(self, *args):
         self.followLog('/var/log/nginx/access.log', 'nginx')
         print("WebSocket opened")
@@ -49,6 +49,6 @@ class shadowParser(tornado.websocket.WebSocketHandler):
 
 
 if __name__ == '__main__':
-    app = tornado.web.Application([(r'/', shadowParser)])
+    app = tornado.web.Application([(r'/', ShadowParser)])
     app.listen(7777)
     tornado.ioloop.IOLoop.instance().start()
