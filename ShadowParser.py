@@ -15,6 +15,7 @@ class ShadowParser(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print(message)
         self.write_message(message)
+        self.followqueue()
 
     def on_close(self):
         print('WebSocket closed')
@@ -24,10 +25,9 @@ class ShadowParser(tornado.websocket.WebSocketHandler):
         return True
 
     def followqueue(self):
-        while True:
-            line, logtype = eventqueue.get()
-            self.parseandserve(line, logtype)
-            eventqueue.task_done()
+        line, logtype = eventqueue.get(block=True)
+        self.parseandserve(line, logtype)
+        eventqueue.task_done()
 
     def parseandserve(self, line, logtype):
         event = 0
