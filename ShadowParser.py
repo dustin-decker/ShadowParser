@@ -9,8 +9,9 @@ eventqueue = queue.Queue()
 
 class ShadowParser(tornado.websocket.WebSocketHandler):
     def open(self, *args):
-        print('WebSocket opened')
-        self.followqueue()
+        print('ShadowParser websocket opened')
+        print('ShadowBuster IP: ' + self.request.remote_ip)
+        # self.followqueue()
 
     def on_message(self, message):
         print(message)
@@ -39,7 +40,8 @@ class ShadowParser(tornado.websocket.WebSocketHandler):
 
 class EventQueueHandler(tornado.websocket.WebSocketHandler):
     def open(self, *args):
-        print('WebSocket opened')
+        print('EventQueueHandler websocket opened')
+        print('ShadowFollower IP: ' + self.request.remote_ip)
 
     def on_message(self, message):
         print('eventqueue.put: ' + message)
