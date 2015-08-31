@@ -15,8 +15,6 @@ class ShadowParser(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         print(message)
-        self.write_message(message)
-        self.followqueue()
 
     def on_close(self):
         print('WebSocket closed')
@@ -29,7 +27,9 @@ class ShadowParser(tornado.websocket.WebSocketHandler):
         line, logtype = eventqueue.get(block=True)
         self.parseandserve(line, logtype)
         eventqueue.task_done()
+        self.followqueue()
 
+    @tornado.web.asynchronous
     def parseandserve(self, line, logtype):
         event = 0
         if logtype == 'nginx':
