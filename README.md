@@ -11,4 +11,4 @@ entries into usable data, served up via websockets for ShadowBuster.
 
 `sudo apt-get install libgeoip-dev python3 python3-pip`
 
-`sudo pip3 install GeoIP tornado websocket-client`
+`sudo pip3 install GeoIP tornado pika`
