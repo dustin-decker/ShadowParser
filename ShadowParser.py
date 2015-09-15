@@ -1,57 +1,101 @@
-import threading
-import subprocess
-import parsers.nginxParser
-from time import sleep
+from sys import exit
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
+import pika
+from threading import Thread
+import logging
+import parsers.nginxParser
+import json
 
 
-class ShadowParser(tornado.websocket.WebSocketHandler):
+class SocketHandler(tornado.websocket.WebSocketHandler):
+    def rabbitconnect(self):
+        self.connection = pika.BlockingConnection()
+        logging.info('Connected:localhost')
+        self.channel = self.connection.channel()
+        logging.info('Starting thread RabbitMQ')
+        self.threadRMQ = Thread(target=self.threaded_rmq)
+        self.threadRMQ.start()
 
-    def open(self, *args):
-        self.followlog('/var/log/nginx/access.log', 'nginx')
-        print("WebSocket opened")
-
-    def on_message(self, message):
-        print(message)
-        self.write_message(message)
+    def open(self):
+        logging.info('WebSocket opened')
+        self.rabbitconnect()
+        clients.append(self)
 
     def on_close(self):
-        print("WebSocket closed")
+        logging.info('WebSocket closed')
+        clients.remove(self)
 
     # allow for cross-origin request
     def check_origin(self, origin):
         return True
 
-    def followlog(self, filename, logtype):
-        threading.Thread(target=self.tailhandler,
-                         name=filename,
-                         args=(filename, logtype)).start()
+    def threaded_rmq(self):
+        self.channel.queue_declare(queue="loglines")
+        logging.info('consumer ready, on loglines')
+        self.channel.basic_consume(self.consumer_callback, queue="loglines", no_ack=True)
+        self.channel.start_consuming()
 
-    def tailhandler(self, filename, logtype):
-        p = subprocess.Popen(["tail", "-f", filename], stdout=subprocess.PIPE)
-        while 1:
-            sleep(0.1)
-            line = str(p.stdout.readline())
-            self.parseandserve(line, logtype)
-            if not line:
-                break
+    def disconnect_to_rabbitmq(self):
+        self.channel.stop_consuming()
+        self.connection.close()
+        logging.info('Disconnected from Rabbitmq')
+
+    def consumer_callback(self, ch, method, properties, body):
+        logging.info("[x] Received via RabbitMQ: %r" % (body))
+        # The messagge is brodcast to the connected clients
+        body = json.loads(body.decode('utf-8'))
+        body = self.parseandserve(body['event'], body['logtype'])
+        logging.info("[x] Sent via websockets: %r" % (body))
+        for itm in clients:
+            if body:
+                itm.write_message(body)
 
     def parseandserve(self, line, logtype):
         event = 0
         if logtype == 'nginx':
             event = parsers.nginxParser.parse(line)
-        else:
-            pass
-
         if event:
-            self.write_message(event)
-        else:
-            pass
+            return event
 
 
-if __name__ == '__main__':
-    app = tornado.web.Application([(r'/', ShadowParser)])
-    app.listen(7777)
+class MainHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("websocket.html")
+
+
+application = tornado.web.Application([
+    (r'/', SocketHandler),
+    (r"/web", MainHandler),
+])
+
+
+def startTornado():
+    logging.info('Starting websocket server')
+    application.listen(7777)
     tornado.ioloop.IOLoop.instance().start()
+
+
+def stopTornado():
+    tornado.ioloop.IOLoop.instance().stop()
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+
+
+    # web socket clients connected.
+    clients = []
+
+    logging.info('Starting thread Tornado')
+
+    threadTornado = Thread(target=startTornado)
+
+    try:
+        threadTornado.start()
+    except KeyboardInterrupt:
+        logging.info('Disconnecting from RabbitMQ..')
+        disconnect_to_rabbitmq()
+        stopTornado()
+        exit(0)

@@ -80,6 +80,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+/nginx
 lib64/
 parts/
 sdist/
