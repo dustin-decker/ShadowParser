@@ -3,12 +3,14 @@ import pika
 from pygtail import Pygtail
 import json
 from time import sleep
+from sys import exit
+import logging
 
 
 class ShadowFollower:
     def __init__(self):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host='localhost'))
+        self.connection = pika.BlockingConnection()
+        logging.info('Connected:localhost')
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue='loglines')
         self.followlog('/var/log/nginx/access.log', 'nginx')
@@ -30,7 +32,7 @@ class ShadowFollower:
 
     def push(self, event, logtype):
         if self.channel:
-            jsonbody = json.dumps(event, logtype).encode()
+            jsonbody = json.dumps({'event': event, 'logtype': logtype}).encode('utf-8')
             self.channel.basic_publish(exchange='',
                                        routing_key='loglines',
                                        body=jsonbody)
@@ -38,4 +40,7 @@ class ShadowFollower:
 
 
 if __name__ == '__main__':
-    app = ShadowFollower()
+    try:
+        app = ShadowFollower()
+    except KeyboardInterrupt:
+        exit(0)
