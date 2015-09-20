@@ -44,7 +44,6 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
 
     def consumer_callback(self, ch, method, properties, body):
         logging.info("[x] Received via RabbitMQ: %r" % (body))
-        # The messagge is brodcast to the connected clients
         body = json.loads(body.decode('utf-8'))
         body = self.parseandserve(body['event'], body['logtype'])
         logging.info("[x] Sent via websockets: %r" % (body))
@@ -60,9 +59,10 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
             return event
 
 
+# Optional web server for hosting ShadowBuster
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("websocket.html")
+        self.render("ShadowBuster/index.html")
 
 
 application = tornado.web.Application([

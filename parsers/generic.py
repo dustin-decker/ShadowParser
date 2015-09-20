@@ -34,7 +34,7 @@ def formatpayload(ip, geoinfo, signature):
                 "signatureName": signature,
                 "attackerIP": ip,
                 "targetIP": host['targetIP'],
-                "hostHeader": "not yet implemented"
+                "hostHeader": "dustindecker.me"
             }
         )
 

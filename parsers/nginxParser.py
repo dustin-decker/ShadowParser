@@ -5,7 +5,7 @@ def parse(line):
     ipregex = (r''
                '(\d+.\d+.\d+.\d+)\s-\s-\s'
                )
-    signature = 'nginx'
+    signature = 'web server request'
     event = parsers.generic.parse(ipregex, line, signature)
     return event
 
